@@ -30,7 +30,7 @@ export class UserEntity {
         if ( !role ){ throw CustomError.badRequest('Mising role') }
 
 
-        return new UserEntity ( _id || id, email, name, password, isValidated, role, img );
+        return new UserEntity (id  || _id, name, email, isValidated, password, role, img );
     }
 
 }

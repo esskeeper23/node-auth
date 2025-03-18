@@ -20,7 +20,7 @@ export class RegisterUserDto {
 
         if ( !password ) return ['Missing password', undefined];
 
-        return [undefined, new RegisterUserDto(name, password, email)];
+        return [undefined, new RegisterUserDto(name, email, password)];
     }
 
 }
