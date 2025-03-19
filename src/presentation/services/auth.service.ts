@@ -1,12 +1,17 @@
-import { bcryptAdapter, JwtAdapter } from "../../config";
+import { bcryptAdapter, envs, JwtAdapter } from "../../config";
 import { UserModel } from "../../data";
 import { CustomError, LoginUserDto, RegisterUserDto, UserEntity } from "../../domain";
+import { EmailService } from "./email.service";
 
 
 
 export class AuthService {
 
-    constructor() {}
+    // DI
+    constructor(
+        // DI - Email Service
+        private readonly emailService: EmailService
+    ) {}
 
 
     public async registerUser( registerUserDto: RegisterUserDto )  {
@@ -22,17 +27,21 @@ export class AuthService {
 
 
             await user.save();
-            // JWT
 
 
             // Verificar email
+            await this.sendEmailValidation(user.email)
+
 
 
             const {password, ...userEntity} = UserEntity.fromObject(user)
 
+            const token = await JwtAdapter.generateToken({id: user.id});
+            if ( !token ) throw CustomError.internalServer('Error generating token');
+
             return {
                 user: userEntity,
-                token: 'ABC'
+                token: token
             };
         } catch (error) {
             throw CustomError.internalServer(`${ error }`)
@@ -58,6 +67,25 @@ export class AuthService {
             user: userEntity,
             token: token
         }
+    }
+
+    private sendEmailValidation = async( email: string ) => {
+        const token = await JwtAdapter.generateToken({email: email});
+        if ( !token ) throw CustomError.internalServer('Error generating token');
+
+        const link = `${ envs.WEBSERVICE_URL }/auth/validate-email/${ token }`;
+        const html = `<a href="${ link }">Click here to validate your email</a>`;
+
+        const options = {
+            to: email,
+            subject: 'Email validation',
+            htmlBody: html
+        }
+
+        const result = await this.emailService.sendEmail(options);
+        if ( !result ) throw CustomError.internalServer('Error sending email');
+
+        return true;
     }
 
 }
