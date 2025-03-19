@@ -1,12 +1,10 @@
 import { Request, Response } from "express";
 import { CustomError, LoginUserDto, RegisterUserDto } from '../../domain';
-import { AuthService } from "../services/auth.service";
+import { AuthService } from '../services/auth.service';
 
 
 
 export class AuthController { 
-
-
     // DI
     constructor(
         public readonly authService: AuthService,
@@ -19,7 +17,7 @@ export class AuthController {
 
 
         console.log(`${error}`)
-        return res.status(500).json({ error: 'Internal server rror' })
+        return res.status(500).json({ error: 'Internal server error' })
     }
 
     registerUser = (req: Request, res: Response) => {
@@ -41,9 +39,14 @@ export class AuthController {
             .catch( error => this.hanldeError( error, res ) )
  
     }
-    validateEmail = (req: Request, res: Response) => {
 
-        res.json('validateEmail');
+    validateEmail = (req: Request, res: Response) => {
+        const { token } = req.params;
+
+        this.authService.validateEmail(token)
+            .then( () => res.json('Email validated') )
+            .catch( error => this.hanldeError( error, res) )
+
     }
 
 }
