@@ -9,7 +9,7 @@ export class AuthMiddlewares {
 
     static async validateJWT(req: Request, res: Response, next: NextFunction) {
 
-        const authorization = req.headers['Authorization'] as string;
+        const authorization = req.headers['authorization'] as string;
 
         if ( !authorization ) return res.status(401).json({ error: 'Unauthorized' });
         if ( !authorization.startsWith('Bearer ') ) return res.status(401).json({ error: 'Invalid bearer token' });
