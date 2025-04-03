@@ -13,8 +13,9 @@ export class FileUploadRoutes {
   static get routes(): Router {
 
     const router = Router();
-    const service = new FileUploadService()
-    const controller = new FileUploadController(service);
+    const controller = new FileUploadController(
+      new FileUploadService()
+    );
     
     // Definir las rutas
     router.post('/single/:type', controller.uploadFile );
